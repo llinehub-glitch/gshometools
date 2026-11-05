@@ -1,0 +1,12 @@
+{
+  "background_color": "#121212",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "GS Interior &amp; Exteriors",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "GS Interior",
+  "start_url": "/",
+  "theme_color": "#d90429",
+  "id": "/"
+}

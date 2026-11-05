@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS Interior & Exteriors - App</title>
+    <style>
+        :root {
+            --cherry-red: #d90429;
+            --cherry-dark: #8d0801;
+            --cherry-light: #ef233c;
+            --black-main: #0d0d0d;
+            --black-card: #1a1a1a;
+            --black-border: #333333;
+            --text-gold: #ffb703;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            max-width: 950px;
+            background: #1a1a1a;
+            padding: 25px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(217, 4, 41, 0.25);
+            border: 1px solid var(--cherry-dark);
+        }
+        .panel-section { display: none; position: relative; z-index: 1; }
+        .panel-section.active { display: block; z-index: 2; }
+
+        /* PASSWORD / LOGIN AUTHENTICATION OVERLAY - FIXED Z-INDEX */
+        #authOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .auth-box {
+            background: #1e1e1e;
+            border: 2px solid var(--cherry-red);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 25px rgba(217, 4, 41, 0.5);
+            text-align: center;
+            position: relative;
+            z-index: 100000;
+        }
+        .auth-box h2 {
+            color: var(--cherry-light);
+            margin-top: 0;
+            font-size: 22px;
+            border-bottom: 2px solid var(--cherry-red);
+            padding-bottom: 10px;
+        }
+        .auth-box p {
+            color: #cccccc;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid var(--cherry-dark);
+            border-radius: 6px;
+            background: #121212;
+            color: #ffffff;
+            font-size: 15px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .auth-box input:focus {
+            outline: none;
+            border-color: var(--cherry-light);
+            box-shadow: 0 0 8px rgba(239, 35, 60, 0.5);
+        }
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--cherry-red), var(--cherry-dark));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .auth-btn:hover {
+            background: linear-gradient(135deg, var(--cherry-light), var(--cherry-red));
+        }
+
+        /* HEADER */
+        .home-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--cherry-red);
+            margin-bottom: 30px;
+        }
+        
+        .big-logo {
+            width: 110px; height: 110px;
+            margin: 0 auto 15px auto;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--cherry-red), var(--cherry-dark));
+            color: white; border-radius: 50%;
+            border: 3px solid #ffffff; box-shadow: 0 4px 15px rgba(217, 4, 41, 0.5);
+            font-weight: bold; font-size: 32px; letter-spacing: 2px;
+        }
+
+        h1 { color: var(--cherry-light); margin: 0 0 5px 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .subtitle { color: #ffb703; font-weight: bold; font-size: 14px; margin: 0; }
+        
+        .menu-list {
+            display: flex; flex-direction: column; gap: 15px; max-width: 450px; margin: 0 auto;
+        }
+        .menu-btn {
+            background: linear-gradient(135deg, #2b030a, #1a0206);
+            color: white; border: 1px solid var(--cherry-dark); padding: 16px 20px;
+            border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: left;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4); transition: 0.2s; position: relative; z-index: 5;
+        }
+        .menu-btn:hover {
+            background: linear-gradient(135deg, var(--cherry-dark), #2b030a);
+            border-color: var(--cherry-light);
+            transform: translateY(-2px);
+        }
+        .menu-btn span {
+            background: var(--cherry-red);
+            color: white; padding: 5px 12px; border-radius: 4px; font-size: 13px;
+        }
+
+        .shop-header {
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 2px solid var(--cherry-red); padding-bottom: 15px; margin-bottom: 20px;
+        }
+        
+        .logo-box {
+            width: 85px; height: 85px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--cherry-red), var(--cherry-dark));
+            color: white; border-radius: 50%;
+            border: 2px solid #ffffff; box-shadow: 0 2px 10px rgba(217, 4, 41, 0.4);
+            font-weight: bold; font-size: 24px; letter-spacing: 1px;
+        }
+
+        .shop-title-area { text-align: center; flex-grow: 1; padding: 0 15px; }
+        h2 { color: var(--cherry-light); margin: 0 0 5px 0; font-size: 22px; }
+        
+        .back-btn {
+            background-color: #333; color: white; border: 1px solid #555;
+            padding: 10px 18px; border-radius: 5px; cursor: pointer;
+            font-size: 14px; margin-bottom: 15px; font-weight: bold; position: relative; z-index: 5;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--cherry-dark); border-color: var(--cherry-red); }
+
+        .customer-card, .card {
+            background: #222222; border: 1px solid var(--cherry-dark); border-radius: 8px; padding: 18px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .customer-card-title, .card-title {
+            font-weight: bold; color: var(--cherry-light); font-size: 16px; margin-bottom: 15px;
+            border-bottom: 2px solid var(--cherry-red); padding-bottom: 6px;
+        }
+        .customer-row { display: flex; margin-bottom: 10px; font-size: 14px; align-items: center; }
+        .customer-row label { width: 150px; font-weight: bold; color: #dddddd; }
+        .customer-row input { flex-grow: 1; padding: 8px; border: 1px solid #444; border-radius: 4px; font-size: 13px; background: #121212; color: #fff; }
+
+        .global-unit-bar {
+            background: #2b080c; border: 1px solid var(--cherry-red); padding: 12px 15px;
+            border-radius: 6px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .global-unit-bar label { font-weight: bold; color: #ffb703; font-size: 14px; }
+        .global-unit-bar select { width: 200px; padding: 8px; border: 1px solid var(--cherry-red); border-radius: 4px; font-weight: bold; background: #121212; color: #fff; cursor: pointer; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 650px; }
+        th, td { border: 1px solid #333; padding: 9px; text-align: center; font-size: 13px; }
+        th { background: linear-gradient(135deg, var(--cherry-dark), #3a0007); color: #ffffff; border-color: var(--cherry-red); }
+        td { background: #1a1a1a; color: #e0e0e0; }
+        
+        select, input, textarea {
+            padding: 8px; border: 1px solid #444; border-radius: 4px; background: #121212; color: #fff; font-size: 13px; box-sizing: border-box;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none; border-color: var(--cherry-light);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--cherry-red), var(--cherry-dark)); color: white; padding: 10px 18px;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; position: relative; z-index: 5;
+            transition: 0.2s;
+        }
+        .btn:hover { background: linear-gradient(135deg, var(--cherry-light), var(--cherry-red)); }
+        .del-btn { background-color: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; position: relative; z-index: 5; font-weight: bold; }
+        .wa-btn { background-color: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; position: relative; z-index: 5; }
+        .wa-btn:hover { background-color: #128C7E; }
+        
+        .dim-box { display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .dim-input { width: 70px !important; text-align: center; padding: 5px; }
+        
+        .bottom-section { display: flex; justify-content: space-between; margin-top: 20px; align-items: flex-start; gap: 15px; }
+        .terms-box { width: 50%; }
+        .terms-box textarea { width: 100%; height: 100px; padding: 8px; font-size: 12px; background: #121212; color: #ddd; border: 1px solid #444; }
+        .totals-section { width: 45%; }
+        .totals-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; font-size: 13px; align-items: center; }
+        .totals-row input { width: 110px; padding: 4px; text-align: right; background: #121212; color: #fff; border: 1px solid #444; }
+        
+        .grand-total-box {
+            background: linear-gradient(135deg, var(--cherry-red), var(--cherry-dark)); color: white; padding: 12px; border-radius: 6px;
+            font-size: 17px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .footer-shop-info {
+            margin-top: 30px; border-top: 2px dashed var(--cherry-red); padding-top: 15px; text-align: center;
+            background: #121212; padding: 15px; border-radius: 6px; font-size: 13px; color: #ccc; line-height: 1.6;
+        }
+        .footer-shop-info b { color: var(--cherry-light); }
+        .clear { clear: both; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #ddd; font-size: 13px; }
+
+        .name-link { color: var(--cherry-light); text-decoration: underline; cursor: pointer; font-weight: bold; font-size: 14px; position: relative; z-index: 5; }
+        .name-link:hover { color: #ffb703; }
+        .wa-link { color: #25D366; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 5; }
+        .quot-link { color: #28a745; text-decoration: underline; cursor: pointer; font-weight: bold; font-size: 12px; position: relative; z-index: 5; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .cal-day {
+            background: #121212;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 5px;
+            text-align: center;
+            cursor: pointer;
+            min-height: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.2s;
+            user-select: none;
+            position: relative;
+            z-index: 5;
+        }
+        .cal-day:hover { background: #2b080c; border-color: var(--cherry-red); }
+        .cal-date-num { font-weight: bold; font-size: 14px; color: #fff; }
+        .cal-status { font-size: 11px; font-weight: bold; margin-top: 4px; padding: 3px; border-radius: 3px; }
+        
+        .status-present { background: #1e4620; color: #a3cfbb; }
+        .status-absent { background: #5c1d24; color: #f8b4b9; }
+        .status-half { background: #523e02; color: #ffe69c; }
+
+        .profit-text { color: #25D366; font-weight: bold; }
+        .loss-text { color: var(--cherry-light); font-weight: bold; }
+
+        .badge-paid { background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge-due { background: var(--cherry-red); color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+
+        .backup-bar {
+            margin-top: 25px; background: #221214; border: 1px solid var(--cherry-dark);
+            padding: 15px; border-radius: 8px; text-align: center;
+        }
+        .backup-bar h4 { margin: 0 0 10px 0; color: var(--cherry-light); }
+
+        .top-user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #121212;
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid var(--black-border);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-section, .shop-header, .global-unit-bar, .form-row { flex-direction: column; display: block; }
+            .calendar-grid { grid-template-columns: repeat(4, 1fr); }
+            body { padding: 5px; } .container { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PASSWORD / LOGIN AUTHENTICATION OVERLAY -->
+<div id="authOverlay">
+    <div class="auth-box" id="loginBox">
+        <h2>🔒 GS Interior App Login</h2>
+        <div id="setupNotice" style="display:none; color:#ffb703; font-size:12px; margin-bottom:10px;">
+            ⚠️ మోడ్: మొదటిసారి మొబైల్ నంబర్ మరియు కొత్త పాస్‌వర్డ్ సెట్ చేసుకోండి.
+        </div>
+        
+        <div style="text-align:left; margin-bottom:5px;"><label style="font-size:12px; color:#aaa;">మొబైల్ నంబర్ (Mobile Number):</label></div>
+        <input type="tel" id="loginMobile" placeholder="10 అంకెల ఫోన్ నంబర్" maxlength="10">
+        
+        <div style="text-align:left; margin-bottom:5px;"><label style="font-size:12px; color:#aaa;">పాస్‌వర్డ్ / PIN (Password):</label></div>
+        <input type="password" id="loginPassword" placeholder="పాస్‌వర్డ్ నమోదు చేయండి">
+        
+        <div id="confirmPwdGroup" style="display:none;">
+            <div style="text-align:left; margin-bottom:5px;"><label style="font-size:12px; color:#aaa;">పాస్‌వర్డ్ కన్ఫర్మ్ చేయండి (Confirm Password):</label></div>
+            <input type="password" id="loginConfirmPassword" placeholder="మరలా పాస్‌వర్డ్ నమోదు చేయండి">
+        </div>
+
+        <button class="auth-btn" id="authSubmitBtn" type="button" onclick="handleAuthSubmit()">లాగిన్ అవ్వండి (Login)</button>
+        <div id="authError" style="color:#ef233c; font-size:13px; margin-top:12px; font-weight:bold;"></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="top-user-bar">
+        <div>👤 లాగిన్ మొబైల్: <b id="displayUserMobile" style="color:var(--cherry-light);">--</b></div>
+        <button type="button" onclick="changeAppPassword()" style="background:transparent; border:1px solid var(--cherry-red); color:var(--cherry-light); border-radius:4px; padding:4px 10px; cursor:pointer; font-size:12px;">🔑 పాస్‌వర్డ్ మార్చండి</button>
+    </div>
+
+    <!-- HOME / DASHBOARD -->
+    <div id="homeSection" class="panel-section active">
+        <div class="home-header">
+            <div class="big-logo">GS</div>
+            <h1>GS INTERIOR & EXTERIORS</h1>
+            <div class="subtitle">జగపతినిగరం, కిర్లంపూడి</div>
+        </div>
+
+        <div style="text-align:center; margin-bottom: 20px; font-weight: bold; color: #e0e0e0;">
+            దయచేసి కావలసిన ఆప్షన్‌ను ఎంచుకోండి:
+        </div>
+
+        <div class="menu-list">
+            <button class="menu-btn" type="button" onclick="goToSection('quotationSection')">
+                <span>1</span> కొటేషన్ (Quotation) &rarr;
+            </button>
+            <button class="menu-btn" type="button" onclick="goToSection('customerSection')">
+                <span>2</span> కస్టమర్ అకౌంట్స్ (Khata Book) &rarr;
+            </button>
+            <button class="menu-btn" type="button" onclick="goToSection('attendanceSection')">
+                <span>3</span> స్టాఫ్ అటెండెన్స్ & జీతాలు (Staff Attendance) &rarr;
+            </button>
+            <button class="menu-btn" type="button" onclick="goToSection('cashBookSection')">
+                <span>4</span> క్యాష్ బుక్ / ఎక్స్‌పెన్సెస్ (Cash Book) &rarr;
+            </button>
+            <button class="menu-btn" type="button" onclick="goToSection('profitLossSection')" style="border-color: #25D366;">
+                <span>5</span> లాభనష్టాల అకౌంట్ (Profit & Loss Account) &rarr;
+            </button>
+        </div>
+
+        <div class="backup-bar">
+            <h4>💾 Mobile Storage Data Backup & Restore</h4>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn" type="button" style="background-color: #28a745;" onclick="exportDataBackup()">📁 Data Backup Download (Save)</button>
+                <button class="btn" type="button" style="background-color: #ffc107; color: #000;" onclick="document.getElementById('importFile').click()">📥 Restore Data (Upload)</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importDataBackup(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: QUOTATION -->
+    <div id="quotationSection" class="panel-section">
+        <button class="back-btn" type="button" onclick="goToSection('homeSection')">&larr; హోమ్ (Home)</button>
+        <div class="shop-header">
+            <div class="logo-box">GS</div>
+            <div class="shop-title-area">
+                <h2>GS INTERIOR & EXTERIORS</h2>
+                <div class="subtitle">Best Interior, Exterior & Fabrication Works</div>
+            </div>
+        </div>
+        <div class="customer-card">
+            <div class="customer-card-title">కస్టమర్ వివరాలు (Customer Details):</div>
+            <div class="customer-row"><label>Name :</label><input type="text" id="custName" placeholder="కస్టమర్ పేరు నమోదు చేయండి"></div>
+            <div class="customer-row"><label>Village :</label><input type="text" id="custVillage" placeholder="గ్రామం పేరు"></div>
+            <div class="customer-row"><label>Contact Number :</label><input type="text" id="custPhone" placeholder="10 అంకెల ఫోన్ నంబర్"></div>
+            <div class="customer-row"><label>Quotation No :</label><input type="text" id="quotNo" value="GS/2026/01"></div>
+            <div class="customer-row"><label>Date :</label><input type="date" id="quotDate"></div>
+        </div>
+        <div class="global-unit-bar">
+            <label>📏 కొలతల యూనిట్ ఎంచుకోండి:</label>
+            <select id="globalUnit" onchange="updateAllCalculations()">
+                <option value="Inch">Inch to Inch</option>
+                <option value="Feet">Feet to Feet</option>
+                <option value="MM">MM to MM</option>
+            </select>
+        </div>
+        <h3>ఐటమ్స్ జాబితా (Items List)</h3>
+        <div class="table-responsive">
+            <table id="itemTable">
+                <thead>
+                    <tr><th>క్రమ.సం</th><th>పని / ఐటమ్</th><th>పొడవు × వెడల్పు</th><th>మొత్తం కొలత (Sq.Ft)</th><th>ధర (₹)</th><th>మొత్తం (₹)</th><th>చర్య</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <button class="btn" type="button" onclick="addNewRow()" style="margin-top:10px;">+ కొత్త ఐటమ్ జోడించండి</button>
+        <div class="bottom-section">
+            <div class="terms-box">
+                <label>నిబంధనలు & షరతులు (Terms & Conditions):</label>
+                <textarea id="terms">1. అడ్వాన్స్ అమౌంట్ చెల్లించిన తర్వాతే పని ప్రారంభించబడును.
+2. అడ్వాన్స్ క్యాన్సిలేషన్‌లో 90% మాత్రమే తిరిగి ఇవ్వబడుతుంది.
+3. ట్రాన్స్‌పోర్ట్ మరియు ఫిక్సింగ్ ఛార్జీలు వర్తిస్తాయి.</textarea>
+            </div>
+            <div class="totals-section">
+                <div class="totals-row"><span>సబ్ టోటల్ (Subtotal):</span><span id="subTotal">0.00</span></div>
+                <div class="totals-row"><span>ట్రాన్స్‌పోర్ట్ (Transport):</span><input type="number" id="transport" value="0" oninput="calculateGrandTotal()"></div>
+                <div class="totals-row"><span>ఫిక్సింగ్ (Fixing/Labor):</span><input type="number" id="fixing" value="0" oninput="calculateGrandTotal()"></div>
+                <div class="totals-row"><span>డిస్కౌంట్ (Discount):</span><input type="number" id="discount" value="0" oninput="calculateGrandTotal()"></div>
+                <div class="grand-total-box"><span>మొత్తం (Grand Total):</span><span id="grandTotal">₹0.00</span></div>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div class="footer-shop-info">
+            <b>GS Interior & Exteriors</b> | జగపతినిగరం, మెయిన్‌రోడ్, కిర్లంపూడి (PIN: 533343)<br>
+            <b>కాంటాక్ట్ నంబర్లు:</b> 8886456356, 8885223337
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn" type="button" style="background-color: #555; flex: 1;" onclick="window.print()">ప్రింట్ / సేవ్ PDF (Print)</button>
+            <button class="wa-btn" type="button" style="flex: 1; font-size: 15px;" onclick="sendWhatsAppQuotation()">📱 WhatsApp Quotation పంపు</button>
+        </div>
+    </div>
+
+    <!-- SECTION 2: CUSTOMER ACCOUNTS -->
+    <div id="customerSection" class="panel-section">
+        <button class="back-btn" type="button" onclick="goToSection('homeSection')">&larr; హోమ్ (Home)</button>
+        <div class="card" id="addCustomerCard">
+            <div class="card-title">కొత్త కస్టమర్ అకౌంట్ యాడ్ చేయండి (New Khata Account)</div>
+            <div class="form-row">
+                <div class="form-group"><label>కస్టమర్ పేరు (Name):</label><input type="text" id="accName" placeholder="పేరు రాయండి"></div>
+                <div class="form-group"><label>గ్రామం (Village):</label><input type="text" id="accVillage" placeholder="గ్రామం"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>ఫోన్ నంబర్ (Phone):</label><input type="text" id="accPhone" placeholder="ఫోన్ నంబర్"></div>
+                <div class="form-group"><label>మొత్తం ఆర్డర్ విలువ (Total Order Value ₹):</label><input type="number" id="accTotal" placeholder="0"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>ఆర్డర్ తేదీ (Order Date):</label><input type="date" id="accOrderDate"></div>
+            </div>
+            <button class="btn" type="button" onclick="saveCustomerAccount()">ఖతా అకౌంట్ సేవ్ చేయి</button>
+        </div>
+
+        <div class="card" id="customerLedgerView" style="display:none;">
+            <button class="back-btn" type="button" onclick="backToCustomerList()">&larr; కస్టమర్ల జాబితాకు వెళ్ళు</button>
+            <div class="card-title" id="ledgerTitle">కస్టమర్ ఖతా స్టేట్‌మెంట్</div>
+            <div id="customerInfoSummary" style="background: #2b080c; border:1px solid var(--cherry-red); padding: 12px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; line-height: 1.6;"></div>
+            <div style="background: #121212; border: 1px dashed var(--cherry-red); padding: 12px; border-radius: 5px; margin-bottom: 15px;">
+                <b>విడతల వారీగా అడ్వాన్స్ అమౌంట్ ఎంటర్ చేయండి:</b>
+                <div class="form-row" style="margin-top: 8px;">
+                    <div class="form-group"><label>అమౌంట్ (₹):</label><input type="number" id="advAmount" placeholder="0"></div>
+                    <div class="form-group"><label>తేదీ (Date):</label><input type="date" id="advDate"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>చెల్లించిన పద్ధతి (Mode):</label>
+                        <select id="advMode">
+                            <option value="PhonePe">PhonePe / Online</option>
+                            <option value="Cash">Cash (నగదు)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <button class="btn" type="button" style="width:100%;" onclick="addAdvancePayment()">అడ్వాన్స్ యాడ్ చేయి</button>
+                    </div>
+                </div>
+            </div>
+            <h4>చెల్లించిన అడ్వాన్సులు (Advances History):</h4>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>క్రమ.సం</th><th>తేదీ</th><th>అమౌంట్ (₹)</th><th>మోడ్</th><th>చర్య</th></tr></thead>
+                    <tbody id="advTableBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; font-size: 15px; font-weight: bold; background: #121212; border:1px solid #333; padding: 12px; border-radius: 5px; line-height: 1.8;">
+                <div>మొత్తం చెల్లించిన అడ్వాన్స్: <span id="totalPaidAdv" style="color: #25D366;">₹0</span></div>
+                <div>ఇంకా రావాల్సిన బ్యాలెన్స్: <span id="pendingBal" style="color: var(--cherry-light);">₹0</span></div>
+                <hr style="margin: 8px 0; border: 0; border-top: 1px solid #333;">
+                <div>ఈ ప్రాజెక్ట్ మొత్తం ఖర్చులు: <span id="totalCustExp" style="color: var(--cherry-light);">₹0</span></div>
+                <div style="font-size: 17px; margin-top: 5px;"><b>లాభమా / నష్టమా:</b> <span id="custProfitLossStatus">₹0</span></div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="wa-btn" type="button" style="width: 100%; padding: 10px; font-size: 14px;" onclick="sendWhatsAppReceipt(currentCustomerId)">📲 WhatsApp Full Receipt / Khata Statement పంపు</button>
+            </div>
+        </div>
+
+        <div class="card" id="customerListCard">
+            <div class="card-title">కస్టమర్ల ఖతా బుక్</div>
+            <div class="table-responsive">
+                <table id="customerLedgerTable">
+                    <thead><tr><th>క్రమ.సం</th><th>పేరు & ఊరు</th><th>ఫోన్</th><th>ఆర్డర్ విలువ & తేదీ</th><th>చెల్లించిన అడ్వాన్స్</th><th>బ్యాలెన్స్</th><th>కొటేషన్</th><th>చర్య</th></tr></thead>
+                    <tbody id="customerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: STAFF ATTENDANCE -->
+    <div id="attendanceSection" class="panel-section">
+        <button class="back-btn" type="button" onclick="goToSection('homeSection')">&larr; హోమ్ (Home)</button>
+        <div class="card" id="addStaffCard">
+            <div class="card-title">కొత్త స్టాఫ్ మెంబర్‌ని యాడ్ చేయండి (Add Staff)</div>
+            <div class="form-row">
+                <div class="form-group"><label>స్టాఫ్ పేరు:</label><input type="text" id="stfName" placeholder="పేరు రాయండి"></div>
+                <div class="form-group"><label>స్టాఫ్ రకం:</label>
+                    <select id="stfType">
+                        <option value="Daily Wage">Daily Wage (రోజువారీ కూలి)</option>
+                        <option value="Monthly Salary">Monthly Salary (నెలవారీ జీతం)</option>
+                        <option value="Contract">Contract (కాంట్రాక్ట్)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>కూలి / జీతం అమౌంట్ (₹):</label><input type="number" id="stfWage" placeholder="అమౌంట్ రాయండి"></div>
+                <div class="form-group" style="display: flex; align-items: flex-end;"><button class="btn" type="button" style="width:100%;" onclick="saveStaffMember()">స్టాఫ్ అకౌంట్ సేవ్ చేయి</button></div>
+            </div>
+        </div>
+        <div class="card" id="staffCalendarView" style="display:none;">
+            <button class="back-btn" type="button" onclick="backToStaffList()">&larr; స్టాఫ్ జాబితాకు వెళ్ళు</button>
+            <div class="card-title" id="calStaffTitle">స్టాఫ్ అటెండెన్స్ కేలండర్</div>
+            <div id="staffSummaryBox" style="background: #2b080c; border:1px solid var(--cherry-red); padding: 12px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; line-height: 1.6;"></div>
+            <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;">
+                <b>నెలవారీ కేలండర్:</b>
+                <select id="selectMonthYear" onchange="renderCalendarDays()" style="padding: 5px; font-weight: bold;">
+                    <option value="2026-11">నవంబర్ 2026</option>
+                    <option value="2026-12">డిసెంబర్ 2026</option>
+                    <option value="2027-01">జనవరి 2027</option>
+                    <option value="2027-02">ఫిబ్రవరి 2027</option>
+                    <option value="2027-03">మార్చి 2027</option>
+                </select>
+            </div>
+            <div class="calendar-grid" id="calendarContainer"></div>
+            <div style="margin-top: 20px; background: #121212; border:1px solid #333; padding: 15px; border-radius: 5px; font-size: 15px; line-height: 1.8;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px;">
+                    <b>జీతం పేమెంట్ స్టేటస్:</b>
+                    <select id="stfSalaryStatusSelect" onchange="updateStaffSalaryStatus()" style="padding: 6px 12px; font-weight: bold; border-radius: 4px;">
+                        <option value="Due">🔴 Due (ఇంకా చెల్లించవలసి ఉంది)</option>
+                        <option value="Paid">🟢 Paid (జీతం చెల్లించబడింది)</option>
+                    </select>
+                </div>
+                <div style="text-align: right;">
+                    <b>ప్రెసెంట్ రోజులు:</b> <span id="totPresent" style="color: #25D366; font-weight: bold;">0</span><br>
+                    <b>హాఫ్ డేస్:</b> <span id="totHalf" style="color: #ffb703; font-weight: bold;">0</span><br>
+                    <b>అబ్సెంట్ రోజులు:</b> <span id="totAbsent" style="color: var(--cherry-light); font-weight: bold;">0</span><br>
+                    <hr style="border:0; border-top:1px solid #333; margin: 5px 0;">
+                    <span style="font-size: 18px; color: var(--cherry-light);"><b>ఫైనల్ జీతం:</b> <span id="finalSalary">₹0</span></span>
+                </div>
+            </div>
+        </div>
+        <div class="card" id="staffListCard">
+            <div class="card-title">స్టాఫ్ జాబితా</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>క్రమ.సం</th><th>స్టాఫ్ పేరు</th><th>రకం</th><th>కూలి / జీతం</th><th>హాజరు</th><th>ఫైనల్ జీతం</th><th>పేమెంట్ స్టేటస్</th><th>చర్య</th></tr></thead>
+                    <tbody id="staffTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: CASH BOOK -->
+    <div id="cashBookSection" class="panel-section">
+        <button class="back-btn" type="button" onclick="goToSection('homeSection')">&larr; హోమ్ (Home)</button>
+        <div class="card">
+            <div class="card-title">రోజువారీ ఖర్చులు & క్యాష్ బుక్</div>
+            <div class="form-row">
+                <div class="form-group"><label>తేదీ:</label><input type="date" id="expDate"></div>
+                <div class="form-group"><label>కేటగిరీ:</label>
+                    <select id="expCategory">
+                        <option value="Material">Material (మెటీరియల్)</option>
+                        <option value="Labour">Labour (లేబర్)</option>
+                        <option value="Transport">Transport (ట్రాన్స్‌పోర్ట్)</option>
+                        <option value="Home">Home (ఇల్లు)</option>
+                        <option value="Self">Self (సొంత ఖర్చులు)</option>
+                        <option value="Savings">Savings (సేవింగ్స్)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>కస్టమర్ ఎంచుకోండి:</label>
+                    <select id="expCustomerSelect"><option value="">-- సాధారణ ఖర్చు / జనరల్ --</option></select>
+                </div>
+                <div class="form-group"><label>అమౌంట్ (₹):</label><input type="number" id="expAmount" placeholder="0"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="grid-column: span 2;"><label>వివరణ:</label><input type="text" id="expDesc" placeholder="ఉదా: ప్లైవుడ్, హార్డ్‌వేర్ మొదలైనవి"></div>
+            </div>
+            <button class="btn" type="button" onclick="addExpense()">ఖర్చు నమోదు చేయి</button>
+        </div>
+        <div class="card" style="background: #221214;">
+            <div class="card-title">కేటగిరీ వారీగా మొత్తం ఖర్చులు</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 14px;">
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Material:</b> <span id="sumMaterial" style="color:var(--cherry-light);">₹0</span></div>
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Labour:</b> <span id="sumLabour" style="color:var(--cherry-light);">₹0</span></div>
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Transport:</b> <span id="sumTransport" style="color:var(--cherry-light);">₹0</span></div>
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Home:</b> <span id="sumHome" style="color:var(--cherry-light);">₹0</span></div>
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Self:</b> <span id="sumSelf" style="color:var(--cherry-light);">₹0</span></div>
+                <div style="background:#121212; padding:10px; border-radius:5px; border:1px solid #444;"><b>Savings:</b> <span id="sumSavings" style="color:#25D366;">₹0</span></div>
+            </div>
+            <div style="margin-top: 15px; font-size: 16px; font-weight: bold; text-align: right;">మొత్తం ఖర్చులు: <span id="grandTotalExp" style="color: #ffb703;">₹0</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title">ఖర్చుల చరిత్ర</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>క్రమ.సం</th><th>తేదీ</th><th>కేటగిరీ</th><th>కస్టమర్</th><th>వివరణ</th><th>అమౌంట్</th><th>చర్య</th></tr></thead>
+                    <tbody id="expenseTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 5: PROFIT & LOSS -->
+    <div id="profitLossSection" class="panel-section">
+        <button class="back-btn" type="button" onclick="goToSection('homeSection')">&larr; హోమ్ (Home)</button>
+        <div class="card" style="background: #1a1a1a; border-top: 4px solid var(--cherry-red);">
+            <div class="card-title" style="color: var(--cherry-light);">లాభనష్టాల లెక్కల నివేదిక (Profit & Loss Dashboard)</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background: #1e3a21; border: 1px solid #28a745; padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 14px; font-weight: bold; color: #a3cfbb;">మొత్తం రాబడి & అడ్వాన్సులు</div>
+                    <div id="plTotalRevenue" style="font-size: 22px; font-weight: bold; color: #25D366; margin-top: 5px;">₹0</div>
+                    <div style="font-size: 11px; color: #aaa; margin-top: 4px;">(అడ్వాన్సులు: <span id="plAdvReceived">₹0</span>)</div>
+                </div>
+                <div style="background: #3b1419; border: 1px solid var(--cherry-red); padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 14px; font-weight: bold; color: #f8b4b9;">మొత్తం ఖర్చులు & జీతాలు</div>
+                    <div id="plTotalExpenses" style="font-size: 22px; font-weight: bold; color: var(--cherry-light); margin-top: 5px;">₹0</div>
+                    <div style="font-size: 11px; color: #aaa; margin-top: 4px;">(షాప్ ఖర్చులు: <span id="plDirectExp">₹0</span> | జీతాలు: <span id="plPaidSalaries">₹0</span>)</div>
+                </div>
+            </div>
+            <div style="background: #2b080c; border: 1px solid var(--cherry-red); padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                <b>ఇంకా చెల్లించవలసిన స్టాఫ్ బాకీ జీతాలు:</b> <span id="plDueSalaries" style="color: var(--cherry-light); font-weight: bold;">₹0</span>
+            </div>
+            <div style="background: #121212; border: 2px dashed #28a745; padding: 20px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 16px; font-weight: bold; color: #a3cfbb;">షాప్ నికర లాభం / నష్టం</div>
+                <div id="plNetProfitLoss" style="font-size: 28px; font-weight: bold; margin-top: 8px;">₹0</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">కస్టమర్ల వారీగా లాభనష్టాలు</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>క్రమ.సం</th><th>కస్టమర్ పేరు</th><th>ఆర్డర్ విలువ</th><th>స్వీకరించిన అడ్వాన్స్</th><th>ప్రాజెక్ట్ ఖర్చులు</th><th>లాభం / నష్టం</th></tr></thead>
+                    <tbody id="plCustomerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let customerAccounts = JSON.parse(localStorage.getItem('gs_customers')) || [];
+    let staffList = JSON.parse(localStorage.getItem('gs_staff')) || [];
+    let expenseList = JSON.parse(localStorage.getItem('gs_expenses')) || [];
+    let appAuthData = JSON.parse(localStorage.getItem('gs_auth_data')) || null;
+    
+    let currentCustomerId = null;
+    let currentStaffId = null;
+
+    window.onload = function() {
+        let today = new Date().toISOString().split('T')[0];
+        if(document.getElementById('quotDate')) document.getElementById('quotDate').value = today;
+        if(document.getElementById('accOrderDate')) document.getElementById('accOrderDate').value = today;
+        if(document.getElementById('advDate')) document.getElementById('advDate').value = today;
+        if(document.getElementById('expDate')) document.getElementById('expDate').value = today;
+        
+        checkAppAuthLock();
+
+        addNewRow();
+        renderCustomerAccounts();
+        renderStaffTable();
+        renderExpenses();
+        populateCustomerDropdown();
+    };
+
+    /* AUTHENTICATION & LOCK SYSTEM */
+    function checkAppAuthLock() {
+        let overlay = document.getElementById('authOverlay');
+        let setupNotice = document.getElementById('setupNotice');
+        let confirmGroup = document.getElementById('confirmPwdGroup');
+        let submitBtn = document.getElementById('authSubmitBtn');
+
+        if (!appAuthData) {
+            setupNotice.style.display = 'block';
+            confirmGroup.style.display = 'block';
+            submitBtn.innerText = "పాస్‌వర్డ్ సెట్ చేసి లాగిన్ అవ్వండి";
+            overlay.style.display = 'flex';
+        } else {
+            setupNotice.style.display = 'none';
+            confirmGroup.style.display = 'none';
+            submitBtn.innerText = "లాగిన్ అవ్వండి (Login)";
+            document.getElementById('loginMobile').value = appAuthData.mobile || "";
+            overlay.style.display = 'flex';
+        }
+    }
+
+    function handleAuthSubmit() {
+        let mobile = document.getElementById('loginMobile').value.trim();
+        let pwd = document.getElementById('loginPassword').value.trim();
+        let confirmPwd = document.getElementById('loginConfirmPassword').value.trim();
+        let errDiv = document.getElementById('authError');
+        errDiv.innerText = "";
+
+        if (mobile.length !== 10 || isNaN(mobile)) {
+            errDiv.innerText = "⚠️ దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి!";
+            return;
+        }
+
+        if (!pwd) {
+            errDiv.innerText = "⚠️ దయచేసి పాస్‌వర్డ్ నమోదు చేయండి!";
+            return;
+        }
+
+        if (!appAuthData) {
+            if (pwd !== confirmPwd) {
+                errDiv.innerText = "⚠️ పాస్‌వర్డ్ మరియు కన్ఫర్మ్ పాస్‌వర్డ్ మ్యాచ్ అవ్వలేదు!";
+                return;
+            }
+            appAuthData = { mobile: mobile, password: pwd };
+            localStorage.setItem('gs_auth_data', JSON.stringify(appAuthData));
+            alert("✅ పాస్‌వర్డ్ విజయవంతంగా సెట్ అయింది!");
+            unlockApp();
+        } else {
+            if (mobile === appAuthData.mobile && pwd === appAuthData.password) {
+                unlockApp();
+            } else {
+                errDiv.innerText = "❌ తప్పు మొబైల్ నంబర్ లేదా పాస్‌వర్డ్! దయచేసి మళ్ళీ ప్రయత్నించండి.";
+            }
+        }
+    }
+
+    function unlockApp() {
+        let overlay = document.getElementById('authOverlay');
+        if(overlay) overlay.style.display = 'none';
+        let mobileDisp = document.getElementById('displayUserMobile');
+        if(mobileDisp && appAuthData) mobileDisp.innerText = appAuthData.mobile;
+    }
+
+    function changeAppPassword() {
+        let oldPwd = prompt("మీ ప్రస్తుత పాస్‌వర్డ్‌ను నమోదు చేయండి:");
+        if (oldPwd === appAuthData.password) {
+            let newPwd = prompt("కొత్త పాస్‌వర్డ్‌ను నమోదు చేయండి:");
+            if (newPwd && newPwd.trim() !== "") {
+                appAuthData.password = newPwd.trim();
+                localStorage.setItem('gs_auth_data', JSON.stringify(appAuthData));
+                alert("✅ పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది!");
+            } else {
+                alert("పొరపాటు: చెల్లని పాస్‌వర్డ్!");
+            }
+        } else if (oldPwd !== null) {
+            alert("❌ తప్పు పాస్‌వర్డ్!");
+        }
+    }
+
+    function saveStorage() {
+        localStorage.setItem('gs_customers', JSON.stringify(customerAccounts));
+        localStorage.setItem('gs_staff', JSON.stringify(staffList));
+        localStorage.setItem('gs_expenses', JSON.stringify(expenseList));
+    }
+
+    function exportDataBackup() {
+        let data = { customers: customerAccounts, staff: staffList, expenses: expenseList, auth: appAuthData };
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+        let downloadAnchor = document.createElement('a');
+        let dateStr = new Date().toISOString().slice(0,10);
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `GS_App_Data_Backup_${dateStr}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function importDataBackup(event) {
+        let file = event.target.files[0];
+        if(!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let data = JSON.parse(e.target.result);
+                if(data.customers && data.staff && data.expenses) {
+                    customerAccounts = data.customers;
+                    staffList = data.staff;
+                    expenseList = data.expenses;
+                    if(data.auth) {
+                        appAuthData = data.auth;
+                        localStorage.setItem('gs_auth_data', JSON.stringify(appAuthData));
+                    }
+                    saveStorage();
+                    renderCustomerAccounts();
+                    renderStaffTable();
+                    renderExpenses();
+                    populateCustomerDropdown();
+                    alert("మొబైల్ డేటా విజయవంతంగా ఆటోమేటిక్‌గా రీస్టోర్ అయ్యింది!");
+                } else {
+                    alert("చెల్లని ఫైల్!");
+                }
+            } catch(err) {
+                alert("ఫైల్ చదవడంలో విఫలమైంది: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function goToSection(sectionId) {
+        let sections = document.querySelectorAll('.panel-section');
+        sections.forEach(function(sec) { sec.classList.remove('active'); });
+        let target = document.getElementById(sectionId);
+        if(target) target.classList.add('active');
+        if(sectionId === 'customerSection') backToCustomerList();
+        if(sectionId === 'attendanceSection') backToStaffList();
+        if(sectionId === 'cashBookSection') populateCustomerDropdown();
+        if(sectionId === 'profitLossSection') renderProfitLossDashboard();
+        window.scrollTo(0, 0);
+    }
+
+    function populateCustomerDropdown() {
+        let select = document.getElementById('expCustomerSelect');
+        if(!select) return;
+        select.innerHTML = '<option value="">-- సాధారణ ఖర్చు / జనరల్ --</option>';
+        customerAccounts.forEach(acc => {
+            let opt = document.createElement('option');
+            opt.value = acc.id;
+            opt.innerText = acc.name + ' (' + acc.village + ')';
+            select.appendChild(opt);
+        });
+    }
+
+    function saveCustomerAccount() {
+        let name = document.getElementById('accName').value.trim();
+        let village = document.getElementById('accVillage').value.trim();
+        let phone = document.getElementById('accPhone').value.trim();
+        let totalVal = parseFloat(document.getElementById('accTotal').value) || 0;
+        let orderDate = document.getElementById('accOrderDate').value;
+        if(!name) { alert("దయచేసి కస్టమర్ పేరు నమోదు చేయండి!"); return; }
+
+        let itemsData = [];
+        let rows = document.querySelectorAll("#tableBody tr");
+        rows.forEach(function(row) {
+            let itemSelect = row.querySelector("select");
+            let itemName = itemSelect ? itemSelect.value : "";
+            let customInput = row.querySelector(".custom-item-input");
+            if(itemName === "Custom" && customInput) itemName = customInput.value;
+            let length = row.querySelector(".length-val") ? row.querySelector(".length-val").value : 0;
+            let width = row.querySelector(".width-val") ? row.querySelector(".width-val").value : 0;
+            let sqft = row.querySelector(".totalSize") ? row.querySelector(".totalSize").innerText : "0";
+            let price = row.querySelector(".price-val") ? row.querySelector(".price-val").value : "0";
+            if(length > 0 || width > 0) itemsData.push({ itemName, length, width, sqft, price });
+        });
+
+        customerAccounts.push({ id: Date.now(), name, village, phone, totalVal, orderDate, advances: [], itemsData });
+        saveStorage();
+        renderCustomerAccounts();
+        populateCustomerDropdown();
+        document.getElementById('accName').value = "";
+        document.getElementById('accVillage').value = "";
+        document.getElementById('accPhone').value = "";
+        document.getElementById('accTotal').value = "";
+        alert("కస్టమర్ ఖతా అకౌంట్ విజయవంతంగా సేవ్ చేయబడింది!");
+    }
+
+    function renderCustomerAccounts() {
+        let tbody = document.getElementById('customerTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        customerAccounts.forEach(function(acc, index) {
+            let row = tbody.insertRow();
+            let totalPaid = 0;
+            if(acc.advances) acc.advances.forEach(a => totalPaid += a.amount);
+            let balance = acc.totalVal - totalPaid;
+            let balStatus = balance <= 0 ? '<span style="color:#25D366; font-weight:bold;">₹0 (Full Paid)</span>' : '<span style="color:var(--cherry-light); font-weight:bold;">₹' + balance + ' (Pending)</span>';
+            let phoneDisplay = acc.phone ? `<span class="wa-link" onclick="sendWhatsAppReceipt(${acc.id})">📲 ${acc.phone}</span>` : '-';
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td><span class="name-link" onclick="openCustomerLedger(${acc.id})"><b>${acc.name}</b><br><small>${acc.village}</small></span></td>
+                <td>${phoneDisplay}</td>
+                <td>₹${acc.totalVal}<br><small>${acc.orderDate}</small></td>
+                <td>₹${totalPaid}</td>
+                <td>${balStatus}</td>
+                <td><span class="quot-link" onclick="openCustomerQuotation(${acc.id})">📄 Quotation</span></td>
+                <td><button class="del-btn" type="button" onclick="deleteCustomerAccount(${index})">తొలగించు</button></td>
+            `;
+        });
+    }
+
+    function openCustomerLedger(id) {
+        currentCustomerId = id;
+        let acc = customerAccounts.find(c => c.id === id);
+        if(!acc) return;
+        document.getElementById('addCustomerCard').style.display = 'none';
+        document.getElementById('customerListCard').style.display = 'none';
+        document.getElementById('customerLedgerView').style.display = 'block';
+        document.getElementById('ledgerTitle').innerText = acc.name + ' (' + acc.village + ') - ఖతా స్టేట్‌మెంట్';
+        updateLedgerSummary();
+        renderAdvancesList();
+    }
+
+    function backToCustomerList() {
+        currentCustomerId = null;
+        document.getElementById('addCustomerCard').style.display = 'block';
+        document.getElementById('customerListCard').style.display = 'block';
+        document.getElementById('customerLedgerView').style.display = 'none';
+        renderCustomerAccounts();
+    }
+
+    function updateLedgerSummary() {
+        let acc = customerAccounts.find(c => c.id === currentCustomerId);
+        if(!acc) return;
+        let totalPaid = 0;
+        if(acc.advances) acc.advances.forEach(a => totalPaid += a.amount);
+        let balance = acc.totalVal - totalPaid;
+        let totalExp = 0;
+        expenseList.forEach(e => { if(e.customerId && parseInt(e.customerId) === acc.id) totalExp += e.amount; });
+        let profitLossVal = acc.totalVal - totalExp;
+        let profitLossHTML = profitLossVal >= 0 ? `<span class="profit-text">+₹${profitLossVal} (Profit)</span>` : `<span class="loss-text">-₹${Math.abs(profitLossVal)} (Loss)</span>`;
+
+        document.getElementById('customerInfoSummary').innerHTML = `<b>కస్టమర్ పేరు:</b> ${acc.name} | <b>గ్రామం:</b> ${acc.village} | <b>ఫోన్:</b> ${acc.phone}<br><b>మొత్తం ఆర్డర్ విలువ:</b> ₹${acc.totalVal}`;
+        document.getElementById('totalPaidAdv').innerText = '₹' + totalPaid;
+        document.getElementById('pendingBal').innerText = '₹' + balance;
+        document.getElementById('totalCustExp').innerText = '₹' + totalExp;
+        document.getElementById('custProfitLossStatus').innerHTML = profitLossHTML;
+    }
+
+    function addAdvancePayment() {
+        let amount = parseFloat(document.getElementById('advAmount').value) || 0;
+        let date = document.getElementById('advDate').value;
+        let mode = document.getElementById('advMode').value;
+        if(amount <= 0) { alert("దయచేసి సరైన అడ్వాన్స్ అమౌంట్ ఎంటర్ చేయండి!"); return; }
+        let acc = customerAccounts.find(c => c.id === currentCustomerId);
+        if(acc) {
+            if(!acc.advances) acc.advances = [];
+            acc.advances.push({ amount, date, mode });
+            saveStorage();
+            document.getElementById('advAmount').value = "";
+            renderAdvancesList();
+            updateLedgerSummary();
+            if(confirm("ఈ అడ్వాన్స్ రసీదును కస్టమర్ WhatsApp కి పంపాలా?")) sendWhatsAppAdvanceReceipt(acc, amount, date, mode);
+        }
+    }
+
+    function renderAdvancesList() {
+        let acc = customerAccounts.find(c => c.id === currentCustomerId);
+        if(!acc) return;
+        let tbody = document.getElementById('advTableBody');
+        tbody.innerHTML = "";
+        if(acc.advances) {
+            acc.advances.forEach((adv, index) => {
+                let row = tbody.insertRow();
+                row.innerHTML = `<td>${index + 1}</td><td>${adv.date}</td><td>₹${adv.amount}</td><td><b>${adv.mode}</b></td><td><button class="wa-btn" type="button" onclick="sendWhatsAppAdvanceReceipt(customerAccounts.find(c => c.id === currentCustomerId), ${adv.amount}, '${adv.date}', '${adv.mode}')">📲 Receipt</button> <button class="del-btn" type="button" onclick="deleteAdvance(${index})">తొలగించు</button></td>`;
+            });
+        }
+    }
+
+    function deleteAdvance(index) {
+        let acc = customerAccounts.find(c => c.id === currentCustomerId);
+        if(acc && acc.advances) { acc.advances.splice(index, 1); saveStorage(); renderAdvancesList(); updateLedgerSummary(); }
+    }
+
+    function openCustomerQuotation(id) {
+        let acc = customerAccounts.find(c => c.id === id);
+        if(!acc) return;
+        goToSection('quotationSection');
+        document.getElementById('custName').value = acc.name;
+        document.getElementById('custVillage').value = acc.village;
+        document.getElementById('custPhone').value = acc.phone;
+        document.getElementById('tableBody').innerHTML = "";
+        if(acc.itemsData && acc.itemsData.length > 0) {
+            acc.itemsData.forEach(item => {
+                addNewRow();
+                let rows = document.querySelectorAll("#tableBody tr");
+                let lastRow = rows[rows.length - 1];
+                let selectElem = lastRow.querySelector("select");
+                selectElem.value = item.itemName;
+                if(!selectElem.value) { selectElem.value = "Custom"; lastRow.querySelector(".custom-item-input").style.display = "block"; lastRow.querySelector(".custom-item-input").value = item.itemName; }
+                lastRow.querySelector(".length-val").value = item.length;
+                lastRow.querySelector(".width-val").value = item.width;
+                lastRow.querySelector(".price-val").value = item.price;
+                updateRowCalculation(lastRow.querySelector(".length-val"));
+            });
+        } else { addNewRow(); }
+    }
+
+    function deleteCustomerAccount(index) {
+        if(confirm("తొలగించాలనుకుంటున్నారా?")) { customerAccounts.splice(index, 1); saveStorage(); renderCustomerAccounts(); populateCustomerDropdown(); }
+    }
+
+    function cleanPhoneNumber(phone) {
+        if(!phone) return "";
+        let clean = phone.replace(/[^0-9]/g, '');
+        if(clean.length === 10) clean = "91" + clean;
+        return clean;
+    }
+
+    function sendWhatsAppReceipt(id) {
+        let acc = customerAccounts.find(c => c.id === id);
+        if(!acc) return;
+        let phone = cleanPhoneNumber(acc.phone);
+        if(!phone) { alert("సరైన ఫోన్ నంబర్ ఇవ్వండి!"); return; }
+        let totalPaid = 0;
+        if(acc.advances) acc.advances.forEach(a => totalPaid += a.amount);
+        let balance = acc.totalVal - totalPaid;
+        let msg = `*GS INTERIOR & EXTERIORS*%0A*CUSTOMER INVOICE*%0A👤 ${acc.name}%0A🏡 ${acc.village}%0A💰 Total: ₹${acc.totalVal}%0A✅ Paid: ₹${totalPaid}%0A❗ Balance: ₹${balance}`;
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    }
+
+    function sendWhatsAppAdvanceReceipt(acc, amount, date, mode) {
+        if(!acc) return;
+        let phone = cleanPhoneNumber(acc.phone);
+        if(!phone) return;
+        let msg = `*GS INTERIOR & EXTERIORS*%0A🧾 *ADVANCE RECEIPT*%0A👤 ${acc.name}%0A💵 Advance: ₹${amount} (${mode})%0A📅 Date: ${date}`;
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    }
+
+    function sendWhatsAppQuotation() {
+        let name = document.getElementById('custName').value.trim();
+        let phone = cleanPhoneNumber(document.getElementById('custPhone').value.trim());
+        let grandTotal = document.getElementById('grandTotal').innerText;
+        if(!phone) { alert("ఫోన్ నంబర్ ఇవ్వండి!"); return; }
+        let msg = `*GS INTERIOR & EXTERIORS*%0A📄 *QUOTATION*%0A👤 ${name}%0A💵 Grand Total: ${grandTotal}`;
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    }
+
+    function addNewRow() {
+        let tableBody = document.getElementById("tableBody");
+        if(!tableBody) return;
+        let rowCount = tableBody.rows.length + 1;
+        let row = tableBody.insertRow();
+        row.innerHTML = `
+            <td>${rowCount}</td>
+            <td>
+                <select style="margin-bottom: 4px;" onchange="checkCustomItem(this)">
+                    <option value="Cupboards">Cupboards</option><option value="Bedroom">Bedroom</option><option value="Kitchen">Kitchen</option><option value="Hall">Hall</option><option value="TV Unit">TV Unit</option><option value="Aluminium">Aluminium</option><option value="UPVC">UPVC</option><option value="Gates">Gates</option><option value="SS Railing">SS Railing</option><option value="Glass Work">Glass Work</option><option value="Custom">ఇతర (Other)</option>
+                </select>
+                <input type="text" class="custom-item-input" placeholder="పేరు రాయండి" style="display:none; margin-top:4px;" />
+            </td>
+            <td><div class="dim-box"><input type="number" class="dim-input length-val" value="0" oninput="updateRowCalculation(this)"><span>×</span><input type="number" class="dim-input width-val" value="0" oninput="updateRowCalculation(this)"></div></td>
+            <td class="totalSize">0.00</td>
+            <td><input type="number" class="price-val" value="0" min="0" oninput="updateRowCalculation(this)"></td>
+            <td class="rowTotal">0.00</td>
+            <td><button class="del-btn" type="button" onclick="deleteRow(this)">తొలగించు</button></td>
+        `;
+    }
+
+    function checkCustomItem(selectObj) {
+        let customInput = selectObj.nextElementSibling;
+        if (selectObj.value === "Custom") { customInput.style.display = "block"; customInput.focus(); } 
+        else { customInput.style.display = "none"; customInput.value = ""; }
+    }
+
+    function roundToCustomFeet(inches) {
+        let wholeFeet = Math.floor(inches / 12);
+        let remInches = inches % 12;
+        if (remInches === 0) return wholeFeet;
+        else if (remInches > 0 && remInches < 9) return wholeFeet + 0.5;
+        else return wholeFeet + 1;
+    }
+
+    function updateRowCalculation(element) {
+        let row = element.closest("tr");
+        let unit = document.getElementById("globalUnit").value;
+        let rawLength = parseFloat(row.querySelector(".length-val").value) || 0;
+        let rawWidth = parseFloat(row.querySelector(".width-val").value) || 0;
+        let price = parseFloat(row.querySelector(".price-val").value) || 0;
+        let lengthInches = unit === "Inch" ? rawLength : (unit === "Feet" ? rawLength * 12 : rawLength / 25.4);
+        let widthInches = unit === "Inch" ? rawWidth : (unit === "Feet" ? rawWidth * 12 : rawWidth / 25.4);
+        let sqFeet = roundToCustomFeet(lengthInches) * roundToCustomFeet(widthInches);
+        row.querySelector(".totalSize").innerText = sqFeet.toFixed(2);
+        row.querySelector(".rowTotal").innerText = (sqFeet * price).toFixed(2);
+        calculateGrandTotal();
+    }
+
+    function updateAllCalculations() {
+        document.querySelectorAll("#tableBody tr").forEach(row => {
+            let lengthInput = row.querySelector(".length-val");
+            if(lengthInput) updateRowCalculation(lengthInput);
+        });
+    }
+
+    function deleteRow(button) {
+        button.closest("tr").remove();
+        updateRowNumbers();
+        calculateGrandTotal();
+    }
+
+    function updateRowNumbers() {
+        document.querySelectorAll("#tableBody tr").forEach((row, index) => { row.cells[0].innerText = index + 1; });
+    }
+
+    function calculateGrandTotal() {
+        let subTotal = 0;
+        document.querySelectorAll(".rowTotal").forEach(cell => { subTotal += parseFloat(cell.innerText) || 0; });
+        let subTotalElem = document.getElementById("subTotal");
+        if(subTotalElem) subTotalElem.innerText = subTotal.toFixed(2);
+        let transport = parseFloat(document.getElementById("transport").value) || 0;
+        let fixing = parseFloat(document.getElementById("fixing").value) || 0;
+        let discount = parseFloat(document.getElementById("discount").value) || 0;
+        let grandTotalElem = document.getElementById("grandTotal");
+        if(grandTotalElem) grandTotalElem.innerText = '₹' + (subTotal + transport + fixing - discount).toFixed(2);
+    }
+
+    function saveStaffMember() {
+        let name = document.getElementById('stfName').value.trim();
+        let type = document.getElementById('stfType').value;
+        let wage = parseFloat(document.getElementById('stfWage').value) || 0;
+        if(!name) { alert("స్టాఫ్ పేరు రాయండి!"); return; }
+        staffList.push({ id: Date.now(), name, type, wage, attendance: {}, salaryStatus: 'Due' });
+        saveStorage();
+        renderStaffTable();
+        document.getElementById('stfName').value = "";
+        document.getElementById('stfWage').value = "";
+        alert("స్టాఫ్ సేవ్ చేయబడ్డారు!");
+    }
+
+    function renderStaffTable() {
+        let tbody = document.getElementById('staffTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        staffList.forEach((stf, index) => {
+            let stats = calculateStaffStats(stf);
+            let statusBadge = (stf.salaryStatus === 'Paid') ? '<span class="badge-paid">Paid</span>' : '<span class="badge-due">Due</span>';
+            let row = tbody.insertRow();
+            row.innerHTML = `<td>${index + 1}</td><td><span class="name-link" onclick="openStaffCalendar(${stf.id})"><b>${stf.name}</b></span></td><td>${stf.type}</td><td>₹${stf.wage}</td><td>${stats.presentCount} Days</td><td><b style="color:var(--cherry-light);">₹${stats.totalSalary}</b></td><td>${statusBadge}</td><td><button class="del-btn" type="button" onclick="deleteStaff(${index})">తొలగించు</button></td>`;
+        });
+    }
+
+    function deleteStaff(index) {
+        if(confirm("తొలగించాలా?")) { staffList.splice(index, 1); saveStorage(); renderStaffTable(); }
+    }
+
+    function openStaffCalendar(id) {
+        currentStaffId = id;
+        document.getElementById('addStaffCard').style.display = 'none';
+        document.getElementById('staffListCard').style.display = 'none';
+        document.getElementById('staffCalendarView').style.display = 'block';
+        renderCalendarDays();
+    }
+
+    function backToStaffList() {
+        currentStaffId = null;
+        document.getElementById('addStaffCard').style.display = 'block';
+        document.getElementById('staffListCard').style.display = 'block';
+        document.getElementById('staffCalendarView').style.display = 'none';
+        renderStaffTable();
+    }
+
+    function renderCalendarDays() {
+        let stf = staffList.find(s => s.id === currentStaffId);
+        if(!stf) return;
+        let monthYearStr = document.getElementById('selectMonthYear').value;
+        let parts = monthYearStr.split('-');
+        let year = parseInt(parts[0]), month = parseInt(parts[1]) - 1;
+
+        document.getElementById('calStaffTitle').innerText = stf.name + ' - కేలండర్ అటెండెన్స్';
+        document.getElementById('staffSummaryBox').innerHTML = `<b>స్టాఫ్:</b> ${stf.name} | <b>రకం:</b> ${stf.type} | <b>జీతం/కూలి:</b> ₹${stf.wage}`;
+        let statusSelect = document.getElementById('stfSalaryStatusSelect');
+        if(statusSelect) statusSelect.value = stf.salaryStatus || 'Due';
+
+        let container = document.getElementById('calendarContainer');
+        container.innerHTML = "";
+        let totalDays = new Date(year, month + 1, 0).getDate();
+        let presentCount = 0, halfCount = 0, absentCount = 0;
+
+        for(let d = 1; d <= totalDays; d++) {
+            let dayStr = d < 10 ? '0' + d : '' + d;
+            let monthStr = (month + 1) < 10 ? '0' + (month + 1) : '' + (month + 1);
+            let dateKey = year + '-' + monthStr + '-' + dayStr;
+            let status = (stf.attendance && stf.attendance[dateKey]) ? stf.attendance[dateKey] : 'Absent';
+            let statusClass = 'status-absent', statusText = 'Absent';
+            if(status === 'Present') { statusClass = 'status-present'; statusText = 'Present'; presentCount++; }
+            else if(status === 'Half Day') { statusClass = 'status-half'; statusText = 'Half Day'; halfCount++; }
+            else { absentCount++; }
+
+            let div = document.createElement('div');
+            div.className = 'cal-day';
+            div.innerHTML = `<div class="cal-date-num">${d}</div><div class="cal-status ${statusClass}">${statusText}</div>`;
+            div.addEventListener('click', function() { toggleAttendance(dateKey); });
+            container.appendChild(div);
+        }
+
+        let totalSalary = (stf.type === 'Monthly Salary') ? stf.wage : ((presentCount * stf.wage) + (halfCount * (stf.wage / 2)));
+        document.getElementById('totPresent').innerText = presentCount;
+        document.getElementById('totHalf').innerText = halfCount;
+        document.getElementById('totAbsent').innerText = absentCount;
+        document.getElementById('finalSalary').innerText = '₹' + totalSalary;
+    }
+
+    function updateStaffSalaryStatus() {
+        let stf = staffList.find(s => s.id === currentStaffId);
+        if(!stf) return;
+        stf.salaryStatus = document.getElementById('stfSalaryStatusSelect').value;
+        saveStorage();
+        alert("స్టేటస్ అప్‌డేట్ చేయబడింది!");
+    }
+
+    function toggleAttendance(dateKey) {
+        let stf = staffList.find(s => s.id === currentStaffId);
+        if(!stf) return;
+        if(!stf.attendance) stf.attendance = {};
+        let current = stf.attendance[dateKey] || 'Absent';
+        if(current === 'Absent') stf.attendance[dateKey] = 'Present';
+        else if(current === 'Present') stf.attendance[dateKey] = 'Half Day';
+        else stf.attendance[dateKey] = 'Absent';
+        saveStorage();
+        renderCalendarDays();
+    }
+
+    function calculateStaffStats(stf) {
+        let presentCount = 0, halfCount = 0;
+        if(stf.attendance) {
+            for(let dateKey in stf.attendance) {
+                if(stf.attendance[dateKey] === 'Present') presentCount++;
+                if(stf.attendance[dateKey] === 'Half Day') halfCount++;
+            }
+        }
+        let totalSalary = (stf.type === 'Monthly Salary') ? stf.wage : ((presentCount * stf.wage) + (halfCount * (stf.wage / 2)));
+        return { presentCount, halfCount, totalSalary };
+    }
+
+    function addExpense() {
+        let date = document.getElementById('expDate').value;
+        let category = document.getElementById('expCategory').value;
+        let customerId = document.getElementById('expCustomerSelect').value;
+        let desc = document.getElementById('expDesc').value.trim();
+        let amount = parseFloat(document.getElementById('expAmount').value) || 0;
+        if(amount <= 0) { alert("సరైన అమౌంట్ ఇవ్వండి!"); return; }
+        expenseList.push({ id: Date.now(), date, category, customerId, desc, amount });
+        saveStorage();
+        document.getElementById('expDesc').value = "";
+        document.getElementById('expAmount').value = "";
+        renderExpenses();
+    }
+
+    function renderExpenses() {
+        let tbody = document.getElementById('expenseTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        let totals = { Material: 0, Labour: 0, Transport: 0, Home: 0, Self: 0, Savings: 0 };
+        let grandTotal = 0;
+        expenseList.forEach((exp, index) => {
+            totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
+            grandTotal += exp.amount;
+            let custName = "-";
+            if(exp.customerId) { let c = customerAccounts.find(cust => cust.id === parseInt(exp.customerId)); if(c) custName = c.name; }
+            let row = tbody.insertRow();
+            row.innerHTML = `<td>${index + 1}</td><td>${exp.date}</td><td><b>${exp.category}</b></td><td><b>${custName}</b></td><td>${exp.desc || '-'}</td><td style="color:var(--cherry-light); font-weight:bold;">₹${exp.amount}</td><td><button class="del-btn" type="button" onclick="deleteExpense(${index})">తొలగించు</button></td>`;
+        });
+        document.getElementById('sumMaterial').innerText = '₹' + totals.Material;
+        document.getElementById('sumLabour').innerText = '₹' + totals.Labour;
+        document.getElementById('sumTransport').innerText = '₹' + totals.Transport;
+        document.getElementById('sumHome').innerText = '₹' + totals.Home;
+        document.getElementById('sumSelf').innerText = '₹' + totals.Self;
+        document.getElementById('sumSavings').innerText = '₹' + totals.Savings;
+        document.getElementById('grandTotalExp').innerText = '₹' + grandTotal;
+    }
+
+    function deleteExpense(index) {
+        if(confirm("తొలగించాలా?")) { expenseList.splice(index, 1); saveStorage(); renderExpenses(); }
+    }
+
+    function renderProfitLossDashboard() {
+        let totalOrderRevenue = 0, totalAdvancesReceived = 0;
+        customerAccounts.forEach(c => {
+            totalOrderRevenue += (c.totalVal || 0);
+            if(c.advances) c.advances.forEach(a => totalAdvancesReceived += (a.amount || 0));
+        });
+        let totalDirectExpenses = 0;
+        expenseList.forEach(e => totalDirectExpenses += (e.amount || 0));
+        let totalPaidSalaries = 0, totalDueSalaries = 0;
+        staffList.forEach(s => {
+            let stats = calculateStaffStats(s);
+            if(s.salaryStatus === 'Paid') totalPaidSalaries += stats.totalSalary;
+            else totalDueSalaries += stats.totalSalary;
+        });
+        let grandTotalExpenses = totalDirectExpenses + totalPaidSalaries;
+        let netPL = totalAdvancesReceived - grandTotalExpenses;
+
+        document.getElementById('plTotalRevenue').innerText = '₹' + totalOrderRevenue;
+        document.getElementById('plAdvReceived').innerText = '₹' + totalAdvancesReceived;
+        document.getElementById('plTotalExpenses').innerText = '₹' + grandTotalExpenses;
+        document.getElementById('plDirectExp').innerText = '₹' + totalDirectExpenses;
+        document.getElementById('plPaidSalaries').innerText = '₹' + totalPaidSalaries;
+        document.getElementById('plDueSalaries').innerText = '₹' + totalDueSalaries;
+        
+        let netElem = document.getElementById('plNetProfitLoss');
+        netElem.innerHTML = netPL >= 0 ? `<span class="profit-text">+₹${netPL} (Net Profit)</span>` : `<span class="loss-text">-₹${Math.abs(netPL)} (Net Loss)</span>`;
+
+        let tbody = document.getElementById('plCustomerTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        customerAccounts.forEach((c, index) => {
+            let custAdv = 0;
+            if(c.advances) c.advances.forEach(a => custAdv += a.amount);
+            let custExp = 0;
+            expenseList.forEach(e => { if(e.customerId && parseInt(e.customerId) === c.id) custExp += e.amount; });
+            let diff = custAdv - custExp;
+            let diffHTML = diff >= 0 ? `<span class="profit-text">+₹${diff}</span>` : `<span class="loss-text">-₹${Math.abs(diff)}</span>`;
+            let row = tbody.insertRow();
+            row.innerHTML = `<td>${index + 1}</td><td><b>${c.name}</b> (${c.village})</td><td>₹${c.totalVal}</td><td style="color:#25D366;">₹${custAdv}</td><td style="color:var(--cherry-light);">₹${custExp}</td><td>${diffHTML}</td>`;
+        });
+    }
+</script>
+</body>
+</html>
